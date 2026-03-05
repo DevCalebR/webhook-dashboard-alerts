@@ -33,6 +33,7 @@ export const env = {
     process.env.WEBHOOK_RATE_LIMIT_WINDOW_MS,
     60_000,
   ),
+  alertSlackWebhookUrl: process.env.ALERT_SLACK_WEBHOOK_URL ?? "",
 };
 
 export function isProduction(): boolean {

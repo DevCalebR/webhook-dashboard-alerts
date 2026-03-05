@@ -15,14 +15,24 @@
   - idempotent dedupe (`dedupeKey`) and duplicate short-circuit response
   - in-memory request rate limiting (MVP)
 - Alerts engine with rule matching and cooldown handling
+- Slack alert action (`actionType=slack_webhook`) with server-side webhook delivery
+  - Payload shape:
+    - `{ text, eventId, ruleId, source, type, receivedAt }`
+  - Slack delivery failures do not fail ingestion/replay
+  - Failures are recorded as `status=fired` with `note` suffix `slack_failed: <message>`
 - Admin rule management UI and recent alert run history
-- Event list/detail pages with filters, pagination, and JSON viewer
+- Event list/detail pages with filters, pagination, JSON viewer, and admin replay trigger
+- Admin replay endpoint: `POST /api/events/:id/replay`
+  - Re-runs alert evaluation for an existing event
+  - Respects cooldown and returns `{ eventId, evaluatedRules, fired, runsCreated }`
 - Scripts:
   - `scripts/setup-env.mjs`
   - `scripts/smoke-test.mjs`
 - Tests:
   - signature verification unit tests
   - webhook API-route integration test
+  - slack action unit test (mocked `fetch`)
+  - replay endpoint integration tests
 
 ## Repo layout
 

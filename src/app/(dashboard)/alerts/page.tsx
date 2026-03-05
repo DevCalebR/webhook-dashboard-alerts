@@ -82,6 +82,15 @@ export default async function AlertsPage() {
                 <Input id="matchValue" name="matchValue" placeholder="invoice." required />
               </div>
               <div>
+                <label className="mb-1 block text-xs uppercase tracking-wide text-slate-400" htmlFor="actionType">
+                  Action
+                </label>
+                <Select id="actionType" name="actionType" defaultValue="db_only">
+                  <option value="db_only">db_only</option>
+                  <option value="slack_webhook">slack_webhook</option>
+                </Select>
+              </div>
+              <div>
                 <label
                   className="mb-1 block text-xs uppercase tracking-wide text-slate-400"
                   htmlFor="cooldownSeconds"
@@ -154,6 +163,15 @@ export default async function AlertsPage() {
                       <Input id={`matchValue-${rule.id}`} name="matchValue" defaultValue={rule.matchValue} required />
                     </div>
                     <div>
+                      <label className="mb-1 block text-xs uppercase tracking-wide text-slate-400" htmlFor={`actionType-${rule.id}`}>
+                        Action
+                      </label>
+                      <Select id={`actionType-${rule.id}`} name="actionType" defaultValue={rule.actionType}>
+                        <option value="db_only">db_only</option>
+                        <option value="slack_webhook">slack_webhook</option>
+                      </Select>
+                    </div>
+                    <div>
                       <label
                         className="mb-1 block text-xs uppercase tracking-wide text-slate-400"
                         htmlFor={`cooldown-${rule.id}`}
@@ -189,6 +207,7 @@ export default async function AlertsPage() {
                     <p>
                       Match: {rule.matchType} {rule.matchValue}
                     </p>
+                    <p>Action: {rule.actionType}</p>
                     <p>Cooldown: {rule.cooldownSeconds}s</p>
                     <p>Last Fired: {rule.lastFiredAt ? formatTimestamp(rule.lastFiredAt) : "never"}</p>
                   </div>
