@@ -11,6 +11,7 @@ const createRuleSchema = z.object({
   source: z.string().min(1),
   matchType: z.enum(["exact", "prefix", "contains"]),
   matchValue: z.string().min(1),
+  actionType: z.enum(["db_only", "slack_webhook"]),
   cooldownSeconds: z.coerce.number().int().min(0).max(86_400),
 });
 
@@ -20,6 +21,7 @@ const updateRuleSchema = z.object({
   source: z.string().min(1),
   matchType: z.enum(["exact", "prefix", "contains"]),
   matchValue: z.string().min(1),
+  actionType: z.enum(["db_only", "slack_webhook"]),
   cooldownSeconds: z.coerce.number().int().min(0).max(86_400),
   enabled: z.boolean(),
 });
@@ -32,6 +34,7 @@ export async function createAlertRuleAction(formData: FormData): Promise<void> {
     source: formData.get("source"),
     matchType: formData.get("matchType"),
     matchValue: formData.get("matchValue"),
+    actionType: formData.get("actionType"),
     cooldownSeconds: formData.get("cooldownSeconds"),
   });
 
@@ -42,7 +45,6 @@ export async function createAlertRuleAction(formData: FormData): Promise<void> {
   await db.alertRule.create({
     data: {
       ...parsed.data,
-      actionType: "db_only",
       enabled: true,
     },
   });
@@ -59,6 +61,7 @@ export async function updateAlertRuleAction(formData: FormData): Promise<void> {
     source: formData.get("source"),
     matchType: formData.get("matchType"),
     matchValue: formData.get("matchValue"),
+    actionType: formData.get("actionType"),
     cooldownSeconds: formData.get("cooldownSeconds"),
     enabled: formData.get("enabled") === "on",
   });

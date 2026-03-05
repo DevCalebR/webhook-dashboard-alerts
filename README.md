@@ -10,6 +10,8 @@ This app provides:
 - Event persistence with idempotent dedupe
 - Protected dashboard for event search and inspection
 - Alert rules and alert run tracking
+- Optional Slack webhook action for fired alerts
+- Admin-only event replay endpoint and UI trigger
 - Admin-only rule management
 - Structured logging for webhook + alert lifecycle
 
@@ -41,6 +43,7 @@ This app provides:
 - `/events`: filterable/paginated table
   - filters: source, signature validity, date range, text search (`type` / `externalId`)
 - `/events/[id]`: event detail + formatted JSON payload + alert run history
+  - admin-only `Replay Alerts` button to re-run rule evaluation for that event
 - `/alerts`: rule management + recent alert runs
 
 ### Alerts engine
@@ -48,9 +51,24 @@ This app provides:
 - Alert rules evaluated synchronously when an event is inserted
 - Rule matching by event `type`:
   - `exact`, `prefix`, `contains`
+- Rule action types:
+  - `db_only`
+  - `slack_webhook`
 - Cooldown support
 - Alert run statuses:
   - `fired`, `skipped_cooldown`, `disabled`, `no_match`
+- Slack delivery failures do not fail ingestion/replay:
+  - run status remains `fired`
+  - run note is suffixed with `slack_failed: <message>`
+
+### Event replay (admin-only)
+
+- `POST /api/events/:id/replay`
+- Requires authenticated admin user
+- Re-runs the same alert evaluation flow used during webhook ingestion
+- Cooldown behavior is respected
+- Response payload:
+  - `{ eventId, evaluatedRules, fired, runsCreated }`
 
 ### Admin setup
 
@@ -125,6 +143,7 @@ Optional:
 - `WEBHOOK_ALLOW_UNSIGNED_GENERIC` (default `false`)
 - `WEBHOOK_RATE_LIMIT_MAX` (default `60`)
 - `WEBHOOK_RATE_LIMIT_WINDOW_MS` (default `60000`)
+- `ALERT_SLACK_WEBHOOK_URL` (required only when using `slack_webhook` action type)
 - `DEV_BYPASS_AUTH` (local-only; default `false`)
 
 ## Signed webhook examples
@@ -163,6 +182,8 @@ curl -X POST http://localhost:3000/api/webhooks/stripe_like \
 3. For each rule, an `AlertRun` is created with status:
    - `disabled`, `no_match`, `skipped_cooldown`, or `fired`
 4. On `fired`, `lastFiredAt` is updated.
+5. For `slack_webhook` action rules, a JSON payload is posted to `ALERT_SLACK_WEBHOOK_URL`.
+6. If Slack delivery fails, the run is still recorded as `fired` with `slack_failed: ...` in `note`.
 
 MVP implementation is synchronous in request path. For production scale, move alert evaluation to a queue worker.
 
@@ -194,6 +215,7 @@ Smoke test verifies:
    - `CLERK_SECRET_KEY`
    - `WEBHOOK_GENERIC_SECRET`
    - `WEBHOOK_STRIPE_LIKE_SECRET`
+   - `ALERT_SLACK_WEBHOOK_URL` (if using Slack action rules)
    - `ADMIN_EMAIL`
    - Optional rate limit and unsigned settings
 5. Deploy

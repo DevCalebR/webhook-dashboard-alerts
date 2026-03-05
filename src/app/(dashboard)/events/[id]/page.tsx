@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { JsonViewer } from "@/components/json-viewer";
+import { ReplayAlertsButton } from "@/components/replay-alerts-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +16,7 @@ interface EventDetailPageProps {
 }
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
-  await requireSessionUser();
+  const sessionUser = await requireSessionUser();
 
   const { id } = await params;
   const event = await db.event.findUnique({
@@ -40,11 +41,14 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Event Detail</h2>
-        <Link href="/events">
-          <Button variant="outline" className="border-slate-600 bg-transparent text-slate-200">
-            Back to Events
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          {sessionUser.isAdmin ? <ReplayAlertsButton eventId={event.id} /> : null}
+          <Link href="/events">
+            <Button variant="outline" className="border-slate-600 bg-transparent text-slate-200">
+              Back to Events
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <Card className="border-slate-700 bg-slate-900/90">
