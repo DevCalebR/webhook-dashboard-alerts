@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum MatchType {
+  exact
+  prefix
+  contains
+}
+
+enum ActionType {
+  db_only
+}
+
+enum AlertRunStatus {
+  fired
+  skipped_cooldown
+  disabled
+  no_match
+}
+
+model UserProfile {
+  id          String   @id @default(cuid())
+  clerkUserId String   @unique
+  email       String   @unique
+  role        UserRole @default(USER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Event {
+  id             String     @id @default(cuid())
+  source         String
+  receivedAt     DateTime   @default(now())
+  type           String
+  externalId     String?
+  payload        Json       @db.JsonB
+  rawBodyHash    String
+  signatureValid Boolean
+  dedupeKey      String     @unique
+  ip             String?
+  userAgent      String?
+  alertRuns      AlertRun[]
+
+  @@index([source, receivedAt(sort: Desc)])
+  @@index([type])
+  @@index([externalId])
+  @@index([signatureValid, receivedAt(sort: Desc)])
+}
+
+model AlertRule {
+  id              String     @id @default(cuid())
+  name            String
+  enabled         Boolean    @default(true)
+  source          String
+  matchType       MatchType
+  matchValue      String
+  actionType      ActionType @default(db_only)
+  cooldownSeconds Int        @default(0)
+  lastFiredAt     DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  runs            AlertRun[]
+
+  @@index([enabled, source])
+}
+
+model AlertRun {
+  id      String         @id @default(cuid())
+  ruleId  String
+  eventId String
+  firedAt DateTime       @default(now())
+  status  AlertRunStatus
+  note    String
+  rule    AlertRule      @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  event   Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId, firedAt(sort: Desc)])
+  @@index([eventId])
+}
