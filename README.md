@@ -126,6 +126,7 @@ docs/                 Architecture, screenshots, and troubleshooting
 - Rate limiting is process memory and is not shared across instances.
 - Alert evaluation and Slack delivery run synchronously in the ingestion request.
 - Only two demonstration signature formats and one external alert channel are implemented.
+- `npm audit` currently reports one high, one moderate, and one low dependency advisory; review framework and transitive upgrades before production use rather than applying forced breaking updates.
 - The repository does not claim production scale, guaranteed delivery, or parity with provider-specific webhook products.
 
 ## Roadmap
