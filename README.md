@@ -30,7 +30,13 @@ Webhooks often become invisible glue: a provider sends an event, an integration 
 
 ## Screenshots
 
-No screenshots are committed because a trustworthy capture requires seeded synthetic events and a redacted Clerk session. The required event-list, event-detail, alert-rule, and replay views are specified in [`docs/SCREENSHOTS.md`](docs/SCREENSHOTS.md).
+The captures below were produced locally from the repository seed data with `DEV_BYPASS_AUTH=true`; no Clerk account, real provider payload, or signing material was used.
+
+| Signed event stream | Alert rules |
+| --- | --- |
+| ![Synthetic webhook event stream](docs/assets/screenshots/event-stream-desktop.png) | ![Synthetic webhook alert rules](docs/assets/screenshots/alert-rules-desktop.png) |
+
+[View the synthetic event detail](docs/assets/screenshots/event-detail-desktop.png) and [mobile alert-rules view](docs/assets/screenshots/alert-rules-mobile.png). Capture boundaries are documented in [`docs/SCREENSHOTS.md`](docs/SCREENSHOTS.md).
 
 ## Architecture
 
