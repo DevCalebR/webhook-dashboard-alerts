@@ -8,7 +8,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Webhook Dashboard Alerts",
   description:
-    "Production-ready webhook ingestion, event dashboard, and alerting workflow.",
+    "Signed webhook ingestion, event diagnostics, and rule-based alerting workflow.",
 };
 
 function AppFrame({ children }: { children: React.ReactNode }) {
